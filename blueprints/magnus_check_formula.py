@@ -4,7 +4,7 @@ Validates physics formulas for mathematical correctness and dimensional consiste
 """
 import sys
 from sympy import Symbol, Eq, simplify
-from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application
+from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_equals_signs
 from sympy.physics.units import (
     force, mass, acceleration, length, time, energy, velocity,
     momentum, power, pressure, charge, current, voltage
@@ -49,7 +49,7 @@ def check_formula(formula_str: str) -> dict:
     """
     try:
         # Parse the formula with implicit multiplication support
-        transformations = standard_transformations + (implicit_multiplication_application,)
+        transformations = standard_transformations + (implicit_multiplication_application, convert_equals_signs)
         expr = parse_expr(formula_str, transformations=transformations, evaluate=False)
 
         # Must be an equation
