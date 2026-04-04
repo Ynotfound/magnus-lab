@@ -12,7 +12,7 @@ def blueprint():
         task_name="Agent-First-Job",
         namespace="Ynotfound",
         repo_name="magnus-lab",
-        default_branch="main",
+        branch="main",
         commit_sha=get_current_commit(),
         entry_command="echo 'Success! My Agent is working!'",
         container_image="docker://python:3.11-slim",
