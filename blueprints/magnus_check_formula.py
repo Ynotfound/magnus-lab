@@ -126,7 +126,7 @@ if __name__ == "__main__":
         from magnus import submit_job
         job_id = submit_job(
             task_name="formula_check",
-            entry_command=f"python blueprints/magnus_check_formula.py '{formula}'",
+            entry_command=f"pip install sympy && python blueprints/magnus_check_formula.py '{formula}'",
             container_image="docker://python:3.11-slim",
             job_type="N/A",
             branch="main",
