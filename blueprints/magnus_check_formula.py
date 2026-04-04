@@ -32,6 +32,7 @@ def blueprint(formula="F = m * a"):
         task_name="formula_check_v2",
         entry_command=f"pip install sympy && python blueprints/magnus_check_formula.py '{formula}'",
         container_image="docker://python:3.11-slim",
+        namespace="Ynotfound",
         repo_name="magnus-lab",
         branch="main",
         job_type="B2"
