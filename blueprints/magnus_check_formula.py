@@ -3,6 +3,7 @@ from sympy import Symbol, Eq, simplify
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_equals_signs
 from sympy.physics.units import *
 from sympy.physics.units.systems.si import dimsys_default
+from sympy.physics.units import equivalent_dimensions
 
 # 定义符号量纲映射
 SYMBOL_DIMENSIONS = {
@@ -16,10 +17,8 @@ def check_formula(formula_str):
         expr = parse_expr(formula_str, transformations=transformations, evaluate=False)
 
         if isinstance(expr, Eq):
-            lhs_deps = dimsys_default.get_dimensional_dependencies(expr.lhs.subs(SYMBOL_DIMENSIONS))
-            rhs_deps = dimsys_default.get_dimensional_dependencies(expr.rhs.subs(SYMBOL_DIMENSIONS))
-            is_valid = lhs_deps == rhs_deps
-            return {"is_valid": is_valid, "error": None if is_valid else f"Mismatch: {lhs_deps} vs {rhs_deps}"}
+            is_valid = dimsys_default.equivalent(expr.lhs.subs(SYMBOL_DIMENSIONS), expr.rhs.subs(SYMBOL_DIMENSIONS))
+            return {"is_valid": is_valid, "error": None if is_valid else f"Mismatch: {{expr.lhs.subs(SYMBOL_DIMENSIONS)}} vs {{expr.rhs.subs(SYMBOL_DIMENSIONS)}}"}
         return {"is_valid": False, "error": "Not an equation"}
     except Exception as e:
         return {"is_valid": False, "error": str(e)}
