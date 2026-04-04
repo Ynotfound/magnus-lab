@@ -2,7 +2,7 @@ import sys
 from sympy import Symbol, Eq, simplify
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_equals_signs
 from sympy.physics.units import *
-from sympy.physics.units.systems.si import dimsys_default
+from sympy.physics.units.util import equivalent_dimensions
 
 # 定义符号量纲映射
 SYMBOL_DIMENSIONS = {
@@ -19,7 +19,7 @@ def check_formula(formula_str):
             lhs_dim = dimsys_default.get_dimensional_dependencies(expr.lhs.subs(SYMBOL_DIMENSIONS))
             rhs_dim = dimsys_default.get_dimensional_dependencies(expr.rhs.subs(SYMBOL_DIMENSIONS))
             # 使用专业等价性检查
-            is_valid = dimsys_default.equivalent(expr.lhs.subs(SYMBOL_DIMENSIONS), expr.rhs.subs(SYMBOL_DIMENSIONS))
+            is_valid = equivalent_dimensions(expr.lhs.subs(SYMBOL_DIMENSIONS), expr.rhs.subs(SYMBOL_DIMENSIONS))
             return {"is_valid": is_valid, "error": None if is_valid else f"Mismatch: {lhs_dim} vs {rhs_dim}"}
     except Exception as e:
         return {"is_valid": False, "error": str(e)}
