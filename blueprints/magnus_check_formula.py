@@ -9,6 +9,10 @@ from sympy.physics.units import (
     force, mass, acceleration, length, time, energy, velocity,
     momentum, power, pressure, charge, current, voltage
 )
+from sympy.physics.units.systems.si import dimsys_default
+    force, mass, acceleration, length, time, energy, velocity,
+    momentum, power, pressure, charge, current, voltage
+)
 
 # Predefined symbol-to-dimension mapping for common physics quantities
 SYMBOL_DIMENSIONS = {
@@ -86,7 +90,7 @@ def check_formula(formula_str: str) -> dict:
         rhs_dims = rhs_dims.simplify()
 
         # Check dimensional equality
-        if lhs_dims != rhs_dims:
+        if not dimsys_default.equivalent(lhs_dims, rhs_dims):
             return {
                 "is_valid": False,
                 "error": f"Dimensional mismatch: {lhs_dims} vs {rhs_dims}"
