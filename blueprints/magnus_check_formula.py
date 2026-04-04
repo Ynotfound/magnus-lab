@@ -12,7 +12,7 @@ SYMBOL_DIMENSIONS = {
 
 def check_formula(formula_str):
     try:
-        # 强制将E解析为符号变量，避免与自然常数冲突
+        # 强制将E解析为符号变量
         local_dict = {'E': Symbol('E')}
         transformations = standard_transformations + (implicit_multiplication_application, convert_equals_signs)
         expr = parse_expr(formula_str, transformations=transformations, evaluate=False, local_dict=local_dict)
@@ -40,6 +40,8 @@ def blueprint(formula="F = m * a"):
     print(f"SUCCESS: Job ID {res}")
 
 if __name__ == "__main__":
-    # 直接提交两个测试任务到集群
-    blueprint("F = m * a")
-    blueprint("E = m * c^2")
+    if len(sys.argv) > 1:
+        print(check_formula(sys.argv[1]))
+    else:
+        blueprint("F = m * a")
+        blueprint("E = m * c^2")
