@@ -8,6 +8,16 @@ def main(job_id):
         from magnus import MagnusClient
         client = MagnusClient()
         logs = client.get_job_logs(job_id)
+
+        # Handle logs wrapped in dict string format
+        try:
+            import ast
+            log_data = ast.literal_eval(logs)
+            if isinstance(log_data, dict) and 'logs' in log_data:
+                logs = log_data['logs']
+        except (ValueError, SyntaxError):
+            pass
+
         # Ensure logs is string format for regex processing
         if isinstance(logs, bytes):
             logs = logs.decode('utf-8')
@@ -27,6 +37,7 @@ def main(job_id):
     losses = [float(match) for match in re.findall(loss_pattern, logs)]
 
     if not losses:
+        print(f"DEBUG: First 500 chars of logs: {repr(logs[:500])}")
         return {
             "job_id": job_id,
             "error": "No loss values found in logs",

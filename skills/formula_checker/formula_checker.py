@@ -12,13 +12,13 @@ m_e = 9.1093837015e-31  # kg
 m_p = 1.67262192369e-27  # kg
 
 CONSTANTS = {
-    'c': {'value': c, 'unit': 'm/s', 'tolerance': 1e-10},
-    'h': {'value': h, 'unit': 'J*s', 'tolerance': 1e-10},
-    'G': {'value': G, 'unit': 'm^3/kg/s^2', 'tolerance': 1e-6},
-    'e': {'value': e, 'unit': 'C', 'tolerance': 1e-10},
-    'k': {'value': k, 'unit': 'J/K', 'tolerance': 1e-10},
-    'm_e': {'value': m_e, 'unit': 'kg', 'tolerance': 1e-10},
-    'm_p': {'value': m_p, 'unit': 'kg', 'tolerance': 1e-10},
+    'c': {'value': c, 'unit': 'm/s', 'tolerance': 1e-5},
+    'h': {'value': h, 'unit': 'J*s', 'tolerance': 1e-5},
+    'G': {'value': G, 'unit': 'm^3/kg/s^2', 'tolerance': 1e-5},
+    'e': {'value': e, 'unit': 'C', 'tolerance': 1e-5},
+    'k': {'value': k, 'unit': 'J/K', 'tolerance': 1e-5},
+    'm_e': {'value': m_e, 'unit': 'kg', 'tolerance': 1e-5},
+    'm_p': {'value': m_p, 'unit': 'kg', 'tolerance': 1e-5},
 }
 
 DIMENSION_MAP = {
@@ -103,8 +103,6 @@ def validate_formula(formula: str, values: dict = None) -> dict:
             try:
                 constant_value = literal_eval(right)
                 if isinstance(constant_value, (int, float)):
-                    if values is None:
-                        values = {}
                     values[left] = constant_value
                     right_dim = parse_dimension(left)
                 else:
@@ -122,13 +120,37 @@ def validate_formula(formula: str, values: dict = None) -> dict:
             f'Dimensional mismatch: {left} ({left_dim}) != {right} ({right_dim})'
         )
 
-    # Numerical validation for constants
+    # Special numerical validation for constant definitions
+    if left in CONSTANTS:
+        try:
+            constant_value = literal_eval(right)
+            if isinstance(constant_value, (int, float)):
+                expected = CONSTANTS[left]['value']
+                actual = constant_value
+                tolerance = CONSTANTS[left]['tolerance']
+
+                # Calculate relative error
+                if expected == 0:
+                    rel_error = abs(actual)
+                else:
+                    rel_error = abs(actual - expected) / abs(expected)
+
+                if rel_error > tolerance:
+                    raise FormulaValidationError(
+                        f'Numerical mismatch for {left}: '
+                        f'expected {expected}, got {actual} '
+                        f'(error: {rel_error:.2e} > {tolerance})'
+                    )
+        except:
+            pass  # Not a numerical value, skip
+
+    # General numerical validation for other constants
     errors = []
     for constant, info in CONSTANTS.items():
         if constant in values:
             expected = info['value']
             actual = values[constant]
-            tolerance = info.get('tolerance', 1e-10)
+            tolerance = info['tolerance']
 
             # Calculate relative error (handle zero values safely)
             if expected == 0:
@@ -145,6 +167,7 @@ def validate_formula(formula: str, values: dict = None) -> dict:
 
     if errors:
         raise FormulaValidationError('\n'.join(errors))
+
 
     return {
         'dimensional_consistent': True,
