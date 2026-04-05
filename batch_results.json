@@ -1,0 +1,42 @@
+[
+  {
+    "formula": "F = G * m1 * m2 / r**2",
+    "status": "valid",
+    "details": {
+      "dimensional_consistent": true,
+      "numerical_valid": true,
+      "left_side": "F",
+      "right_side": "G * m1 * m2 / r**2"
+    }
+  },
+  {
+    "formula": "E = h * f",
+    "status": "valid",
+    "details": {
+      "dimensional_consistent": true,
+      "numerical_valid": true,
+      "left_side": "E",
+      "right_side": "h * f"
+    }
+  },
+  {
+    "formula": "c = 299792",
+    "status": "valid",
+    "details": {
+      "dimensional_consistent": true,
+      "numerical_valid": true,
+      "left_side": "c",
+      "right_side": "299792"
+    }
+  },
+  {
+    "formula": "P = F * v**2",
+    "status": "valid",
+    "details": {
+      "dimensional_consistent": true,
+      "numerical_valid": true,
+      "left_side": "P",
+      "right_side": "F * v**2"
+    }
+  }
+]

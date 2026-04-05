@@ -50,12 +50,18 @@
   git pull origin main --allow-unrelated-histories
   ```
 
-## Common Errors & Fixes
-| Error | Solution |
-|-------|----------|
-| `Remote branch master not found` | Change `branch="master"` → `branch="main"` |
-| `Permission denied (publickey)` | Verify SSH key added to GitHub and correct remote URL |
-| `Failed to determine default branch` | Use `branch` parameter instead of `default_branch` |
-| `LF will be replaced by CRLF` | Set `core.autocrlf input` globally |
+## Project-Specific Best Practices
+- **Encoding Requirement** (Critical for Windows):
+  ```yaml
+  environment:
+    PYTHONUTF8: "1"
+    PYTHONIOENCODING: "utf-8"
+  ```
+- **Deployment Workflow**:
+  Always `git push` BEFORE submitting jobs - cluster uses remote code, not local files
+- **Execution Context Separation**:
+  Use LOCAL IMPORTS for Magnus client (`from magnus import...` inside blueprint function) to prevent container recursion
+- **Parameter Specification**:
+  Use STRING values for job parameters (e.g., `job_type="B2"` not enum types)
 
 **Last Verified**: 2026-04-03

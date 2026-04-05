@@ -1,16 +1,25 @@
 import json
 import re
-from dimsys import DimensionSystem, equivalent
+from ast import literal_eval
+from dimsys_default import DimensionSystem, equivalent
 
-# Physical constants with SI units
+# Comprehensive physical constants with SI units
 c = 299792458  # m/s
 h = 6.62607015e-34  # J*s
 G = 6.67430e-11  # m^3/kg/s^2
+e = 1.602176634e-19  # C
+k = 1.380649e-23  # J/K
+m_e = 9.1093837015e-31  # kg
+m_p = 1.67262192369e-27  # kg
 
 CONSTANTS = {
-    'c': {'value': c, 'unit': 'm/s'},
-    'h': {'value': h, 'unit': 'J*s'},
-    'G': {'value': G, 'unit': 'm^3/kg/s^2'}
+    'c': {'value': c, 'unit': 'm/s', 'tolerance': 1e-10},
+    'h': {'value': h, 'unit': 'J*s', 'tolerance': 1e-10},
+    'G': {'value': G, 'unit': 'm^3/kg/s^2', 'tolerance': 1e-6},
+    'e': {'value': e, 'unit': 'C', 'tolerance': 1e-10},
+    'k': {'value': k, 'unit': 'J/K', 'tolerance': 1e-10},
+    'm_e': {'value': m_e, 'unit': 'kg', 'tolerance': 1e-10},
+    'm_p': {'value': m_p, 'unit': 'kg', 'tolerance': 1e-10},
 }
 
 class FormulaValidationError(Exception):
