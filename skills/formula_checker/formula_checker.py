@@ -40,7 +40,22 @@ def validate_formula(formula: str, values: dict = None) -> dict:
     ds = DimensionSystem()
     try:
         left_dim = ds.parse(left)
-        right_dim = ds.parse(right)
+
+        # Special handling for constant definitions with numerical RHS
+        if left in CONSTANTS:
+            try:
+                # Check if right side is a numerical value
+                constant_value = literal_eval(right)
+                if isinstance(constant_value, (int, float)):
+                    # For dimensional check, treat numerical RHS as having same dimensions as constant
+                    right_dim = left_dim
+                else:
+                    right_dim = ds.parse(right)
+            except:
+                right_dim = ds.parse(right)
+        else:
+            right_dim = ds.parse(right)
+
     except Exception as e:
         raise FormulaValidationError(f'Dimensional parsing error: {str(e)}')
 
@@ -50,16 +65,28 @@ def validate_formula(formula: str, values: dict = None) -> dict:
         )
 
     # Numerical validation for constants
-    if values is None:
-        values = {}
-
-    # Check constant values if present
+    errors = []
     for constant, info in CONSTANTS.items():
-        if constant in values and abs(values[constant] - info['value']) > 1e-10:
-            raise FormulaValidationError(
-                f'Numerical mismatch for {constant}: '
-                f'expected {info["value"]}, got {values[constant]}'
-            )
+        if constant in values:
+            expected = info['value']
+            actual = values[constant]
+            tolerance = info.get('tolerance', 1e-10)
+
+            # Calculate relative error (handle zero values safely)
+            if expected == 0:
+                rel_error = abs(actual)
+            else:
+                rel_error = abs(actual - expected) / abs(expected)
+
+            if rel_error > tolerance:
+                errors.append(
+                    f'Numerical mismatch for {constant}: '
+                    f'expected {expected}, got {actual} '
+                    f'(error: {rel_error:.2e} > {tolerance})'
+                )
+
+    if errors:
+        raise FormulaValidationError('\n'.join(errors))
 
     return {
         'dimensional_consistent': True,

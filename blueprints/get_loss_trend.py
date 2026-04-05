@@ -5,8 +5,8 @@ import json
 
 def main(job_id):
     try:
-        from magnus import get_client
-        client = get_client()
+        import magnus.client
+        client = magnus.client.get_client()
         logs = client.get_job_logs(job_id)
     except Exception as e:
         return {
