@@ -1,7 +1,6 @@
 import json
 import re
 from ast import literal_eval
-from dimsys_default import DimensionSystem, equivalent
 
 # Comprehensive physical constants with SI units
 c = 299792458  # m/s
@@ -22,8 +21,63 @@ CONSTANTS = {
     'm_p': {'value': m_p, 'unit': 'kg', 'tolerance': 1e-10},
 }
 
+DIMENSION_MAP = {
+    'm': {'L': 1},
+    'kg': {'M': 1},
+    's': {'T': 1},
+    'c': {'L': 1, 'T': -1},
+    'h': {'M': 1, 'L': 2, 'T': -1},
+    'G': {'M': -1, 'L': 3, 'T': -2},
+    'e': {'I': 1, 'T': 1},
+    'k': {'M': 1, 'L': 2, 'T': -2, 'Theta': -1},
+    'm_e': {'M': 1},
+    'm_p': {'M': 1},
+    # Physics variables
+    'F': {'M': 1, 'L': 1, 'T': -2},  # Force
+    'E': {'M': 1, 'L': 2, 'T': -2},  # Energy
+    'P': {'M': 1, 'L': 2, 'T': -3},  # Power
+    'm1': {'M': 1},  # Mass 1
+    'm2': {'M': 1},  # Mass 2
+    'r': {'L': 1},   # Radius
+    'v': {'L': 1, 'T': -1},  # Velocity
+    'f': {'T': -1},  # Frequency
+}
+
 class FormulaValidationError(Exception):
     pass
+
+def parse_dimension(expr):
+    """Parse a dimension expression like 'm/s' or 'c^2' into a dimension dict."""
+    expr = expr.replace('**', '^').replace(' ', '')
+    terms = re.split(r'([*/])', expr)
+    current_sign = 1
+    result = {}
+
+    for term in terms:
+        if term == '*':
+            current_sign = 1
+        elif term == '/':
+            current_sign = -1
+        else:
+            base, *exponent = re.split(r'\^', term)
+            exp = int(exponent[0]) if exponent else 1
+            exp *= current_sign
+
+            if base in DIMENSION_MAP:
+                dim = DIMENSION_MAP[base]
+                for key, value in dim.items():
+                    result[key] = result.get(key, 0) + value * exp
+            # Else: ignore unknown symbols (treated as dimensionless)
+
+    return result
+
+def dimensions_equal(d1, d2):
+    """Check if two dimension dictionaries are equal."""
+    all_keys = set(d1.keys()) | set(d2.keys())
+    for key in all_keys:
+        if d1.get(key, 0) != d2.get(key, 0):
+            return False
+    return True
 
 def validate_formula(formula: str, values: dict = None) -> dict:
     """Validate dimensional consistency and numerical correctness"""
@@ -36,30 +90,34 @@ def validate_formula(formula: str, values: dict = None) -> dict:
     left = left.strip()
     right = right.strip()
 
+    # Initialize values if None
+    if values is None:
+        values = {}
+
     # Dimensional validation
-    ds = DimensionSystem()
     try:
-        left_dim = ds.parse(left)
+        left_dim = parse_dimension(left)
 
         # Special handling for constant definitions with numerical RHS
         if left in CONSTANTS:
             try:
-                # Check if right side is a numerical value
                 constant_value = literal_eval(right)
                 if isinstance(constant_value, (int, float)):
-                    # For dimensional check, treat numerical RHS as having same dimensions as constant
-                    right_dim = left_dim
+                    if values is None:
+                        values = {}
+                    values[left] = constant_value
+                    right_dim = parse_dimension(left)
                 else:
-                    right_dim = ds.parse(right)
+                    right_dim = parse_dimension(right)
             except:
-                right_dim = ds.parse(right)
+                right_dim = parse_dimension(right)
         else:
-            right_dim = ds.parse(right)
+            right_dim = parse_dimension(right)
 
     except Exception as e:
         raise FormulaValidationError(f'Dimensional parsing error: {str(e)}')
 
-    if not equivalent(left_dim, right_dim):
+    if not dimensions_equal(left_dim, right_dim):
         raise FormulaValidationError(
             f'Dimensional mismatch: {left} ({left_dim}) != {right} ({right_dim})'
         )

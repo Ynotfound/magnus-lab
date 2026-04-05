@@ -5,9 +5,16 @@ import json
 
 def main(job_id):
     try:
-        import magnus.client
-        client = magnus.client.get_client()
+        from magnus import MagnusClient
+        client = MagnusClient()
         logs = client.get_job_logs(job_id)
+        # Ensure logs is string format for regex processing
+        if isinstance(logs, bytes):
+            logs = logs.decode('utf-8')
+        elif isinstance(logs, list):
+            logs = "\n".join(logs)
+        elif not isinstance(logs, str):
+            logs = str(logs)
     except Exception as e:
         return {
             "job_id": job_id,
@@ -16,7 +23,7 @@ def main(job_id):
         }
 
     # Extract loss values using regex
-    loss_pattern = r'loss:\s*([\d.]+)'
+    loss_pattern = r'(?i)loss[ :]+([0-9.]+)'
     losses = [float(match) for match in re.findall(loss_pattern, logs)]
 
     if not losses:
