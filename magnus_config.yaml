@@ -2,3 +2,6 @@ blueprint_dir: blueprints
 environment:
   PYTHONUTF8: "1"
   PYTHONIOENCODING: "utf-8"
+branch: main
+namespace: Ynotfound
+repo_name: magnus-lab

@@ -43,3 +43,13 @@ python blueprints/get_loss_trend.py --job_id "training-123"
   "status": "decreasing"
 }
 ```
+
+# Loss Trend Analysis Robustness Report
+
+| Scenario | Status | Details |
+|----------|--------|---------|
+| Scenario A (Empty Logs) | PASSED | error |
+| Scenario B (No Metrics) | PASSED | error |
+| Scenario C (NaN/Inf) | PASSED | error |
+| Scenario D (Format Variations) | PASSED |  |
+| Scenario E (Invalid ID) | PASSED | error |

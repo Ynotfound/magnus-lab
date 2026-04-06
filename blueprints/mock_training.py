@@ -5,6 +5,7 @@ if __name__ == "__main__":
         branch="main",
         namespace="Ynotfound",
         repo_name="magnus-lab",
-        job_type="training"
+        task_name="mock_training",
+        entry_command="python blueprints/mock_training_executor.py"
     )
     print(f"Submitted job with ID: {job_id}")

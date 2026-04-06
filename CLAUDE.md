@@ -61,6 +61,13 @@
   Always `git push` BEFORE submitting jobs - cluster uses remote code, not local files
 - **Execution Context Separation**:
   Use LOCAL IMPORTS for Magnus client (`from magnus import...` inside blueprint function) to prevent container recursion
+- **Directory Structure**:
+  - `blueprints/`: Contains job submission blueprints
+  - `scripts/`: Contains executable logic decoupled from Magnus infrastructure
+
+- **get_loss_trend Skill**:
+  V2.1 版本已通过混沌测试，强制开启 errors=replace 编码保护，具备生产级异常捕获逻辑。
+
 - **Parameter Specification**:
   Use STRING values for job parameters (e.g., `job_type="B2"` not enum types)
 
