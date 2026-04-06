@@ -1,9 +1,10 @@
 from magnus import submit_job
 
 if __name__ == "__main__":
-    submit_job(
+    job_id = submit_job(
         branch="main",
         namespace="Ynotfound",
         repo_name="magnus-lab",
-        command="python blueprints/mock_training_executor.py"
+        job_type="training"
     )
+    print(f"Submitted job with ID: {job_id}")
